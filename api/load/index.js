@@ -11,19 +11,19 @@ module.exports = async function (context, req) {
     // Create the BlobServiceClient object with connection string
     const blobService = BlobServiceClient.fromConnectionString(CONNECTION_STRING);
 
-    // Get a reference to the container
-    const containerClient = blobService.getContainerClient("dimpsey-test-container");
+    // // Get a reference to the container
+    // const containerClient = blobService.getContainerClient("dimpsey-test-container");
 
-    // Create a reference to a blob (or object) with the given name in the current container
-    const blockBlobClient = containerClient.getBlockBlobClient("dimpFile.txt");
+    // // Create a reference to a blob (or object) with the given name in the current container
+    // const blockBlobClient = containerClient.getBlockBlobClient("dimpFile.txt");
 
-    const dimpsterFile = await (await fetch("https://css490.blob.core.windows.net/lab4/input.txt")).text();
+    // const dimpsterFile = await (await fetch("https://css490.blob.core.windows.net/lab4/input.txt")).text();
 
-    // Upload the file to the container
-    await blockBlobClient.upload(dimpsterFile, dimpsterFile.length);
+    // // Upload the file to the container
+    // await blockBlobClient.upload(dimpsterFile, dimpsterFile.length);
 
-    // Get a reference to the table that we want to do stuff with
-    const tableClient = TableClient.fromConnectionString(CONNECTION_STRING, "DisastrousDimpsterData");
+    // // Get a reference to the table that we want to do stuff with
+    // const tableClient = TableClient.fromConnectionString(CONNECTION_STRING, "DisastrousDimpsterData");
 
     // Create an array of lines from the file string
     // const fileLines = dimpsterFile.trim().split(/\r?\n/);
