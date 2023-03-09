@@ -26,43 +26,43 @@ module.exports = async function (context, req) {
     const tableClient = TableClient.fromConnectionString(CONNECTION_STRING, "DisastrousDimpsterData");
 
     // Create an array of lines from the file string
-    const fileLines = dimpsterFile.trim().split(/\r?\n/);
+    // const fileLines = dimpsterFile.trim().split(/\r?\n/);
 
-    //context.log(fileLines)
+    // //context.log(fileLines)
 
-    for (let line of fileLines) {
-      const items = line.trim().split(/\s+/);
+    // for (let line of fileLines) {
+    //   const items = line.trim().split(/\s+/);
 
-      let tableEntity = {};
+    //   let tableEntity = {};
 
-      // Parse this line to create the table entity
-      for (let item of items) {
-        if (tableEntity["partitionKey"] == undefined) {
-          tableEntity["partitionKey"] = item;
-        }
-        else if (tableEntity["rowKey"] == undefined) {
-          tableEntity["rowKey"] = item;
-        }
-        else {
-          const keyValue = item.split("=");
-          tableEntity[keyValue[0]] = keyValue[1];
-        }
-      }
+    //   // Parse this line to create the table entity
+    //   for (let item of items) {
+    //     if (tableEntity["partitionKey"] == undefined) {
+    //       tableEntity["partitionKey"] = item;
+    //     }
+    //     else if (tableEntity["rowKey"] == undefined) {
+    //       tableEntity["rowKey"] = item;
+    //     }
+    //     else {
+    //       const keyValue = item.split("=");
+    //       tableEntity[keyValue[0]] = keyValue[1];
+    //     }
+    //   }
 
-      // Upload entity to table
-      await tableClient.upsertEntity(tableEntity);
-    }
+    //   // Upload entity to table
+    //   await tableClient.upsertEntity(tableEntity);
+    // }
 
-    const entitiesItr = tableClient.listEntities();
-    let entityList = [];
+    // const entitiesItr = tableClient.listEntities();
+    // let entityList = [];
 
-    for await (entity of entitiesItr) {
-      entityList.push(entity);
-    }
+    // for await (entity of entitiesItr) {
+    //   entityList.push(entity);
+    // }
 
     context.res.json({
       status: 200,
-      body: entityList
+      body: "connectd"    
     });
 
   } catch (error) {
