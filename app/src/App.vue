@@ -1,24 +1,60 @@
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref } from "vue";
 const queryData = ref();
-const loadingLoad = ref(false);
+
+const firstName = ref();
+const lastName = ref();
+
+const loadLoading = ref(false);
+const clearLoading = ref(false);
+const queryLoading = ref(false);
 
 async function load() {
   // Call the API method for load
-  loadingLoad.value = true;
+  loadLoading.value = true;
 
-  const response = await fetch("/api/load", { method: "PUT" });
-  console.log(await response.json());
+  try {
+    const response = await fetch("/api/load", { method: "PUT" });
+    console.log(await response.json());
+  } catch {}
 
-  loadingLoad.value = false;
+  loadLoading.value = false;
 }
 
-function clear() {
-  // TODO: Call the API method for clear
+async function clear() {
+  // Call the API method for clear
+  clearLoading.value = true;
+
+  try {
+    const response = await fetch("/api/clear", { method: "DELETE" });
+    console.log(await response.json());
+  } catch {}
+
+  clearLoading.value = false;
+
 }
 
-function query(firstName, lastName) {
-  // TODO: Call the API method for query
+async function query() {
+  // Call the API method for query
+  queryLoading.value = true;
+
+  let queryString = "";
+
+  if (firstName.value && lastName.value) {
+    queryString = `?firstName=${firstName.value}&lastName=${lastName.value}`;
+  } else if (firstName.value) {
+    queryString = `?firstName=${firstName.value}`;
+  } else if (lastName.value) {
+    queryString = `?lastName=${lastName.value}`;
+  }
+
+  try {
+    const response = await fetch("/api/query" + queryString);
+    const body = (await response.json()).body;
+    queryData.value = body;
+  } catch {}
+
+  queryLoading.value = false;
 }
 </script>
 
@@ -36,11 +72,11 @@ function query(firstName, lastName) {
       <button 
         type="button"
         class="squishy-button bg-blue-500 focus:ring-4 focus:ring-blue-500/50 shadow-lg shadow-slate-800 w-28 sm:w-44 py-3"
-        :class="{ 'opacity-60': loadingLoad}"
-        :disabled="loadingLoad"
+        :class="{ 'opacity-60': loadLoading}"
+        :disabled="loadLoading"
         @click="load"
       >
-        <svg v-if="loadingLoad" class="h-6 w-6 animate-spin" viewBox="3 3 18 18">
+        <svg v-if="loadLoading" class="h-6 w-6 animate-spin" viewBox="3 3 18 18">
           <path
             class="fill-blue-800"
             d="M12 5C8.13401 5 5 8.13401 5 12C5 15.866 8.13401 19 12 19C15.866 19 19 15.866 19 12C19 8.13401 15.866 5 12 5ZM3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12Z"></path>
@@ -52,40 +88,78 @@ function query(firstName, lastName) {
         <span v-else>Load</span>
       </button>
 
-      <button
+      <button 
         type="button"
-        class="squishy-button bg-red-500 focus:ring-4 focus:ring-red-500/50 shadow-lg shadow-slate-800 px-14 sm:px-20 py-3"
+        class="squishy-button bg-red-500 focus:ring-4 focus:ring-blue-500/50 shadow-lg shadow-slate-800 w-28 sm:w-44 py-3"
+        :class="{ 'opacity-60': clearLoading}"
+        :disabled="clearLoading"
+        @click="clear"
       >
-        Clear
+        <svg v-if="clearLoading" class="h-6 w-6 animate-spin" viewBox="3 3 18 18">
+          <path
+            class="fill-blue-800"
+            d="M12 5C8.13401 5 5 8.13401 5 12C5 15.866 8.13401 19 12 19C15.866 19 19 15.866 19 12C19 8.13401 15.866 5 12 5ZM3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12Z"></path>
+          <path
+            class="fill-blue-100"
+            d="M16.9497 7.05015C14.2161 4.31648 9.78392 4.31648 7.05025 7.05015C6.65973 7.44067 6.02656 7.44067 5.63604 7.05015C5.24551 6.65962 5.24551 6.02646 5.63604 5.63593C9.15076 2.12121 14.8492 2.12121 18.364 5.63593C18.7545 6.02646 18.7545 6.65962 18.364 7.05015C17.9734 7.44067 17.3403 7.44067 16.9497 7.05015Z"></path>
+        </svg>
+
+        <span v-else>Clear</span>
       </button>
     </div>
+
 
     <!-- Row for inputs -->
     <form class="flex justify-center mt-10 gap-2 flex-col sm:gap-10 sm:flex-row">
       <div class="mb-4">
-        <input id="first-name" type="text" placeholder="First Name" class="input-field focus:outline-none focus:ring-2 focus:ring-white/20">
+        <input 
+          type="text" 
+          placeholder="First Name" 
+          class="input-field focus:outline-none focus:ring-2 focus:ring-white/20"
+          v-model="firstName"
+        >
       </div>
 
       <div class="mb-4">
-        <input id="last-name" type="text" placeholder="Last Name" class="input-field focus:outline-none focus:ring-2 focus:ring-white/20">
+        <input 
+          type="text" 
+          placeholder="Last Name" 
+          class="input-field focus:outline-none focus:ring-2 focus:ring-white/20"
+          v-model="lastName"
+        >
       </div>
     </form>
+
 
     <div class="flex justify-center gap-4 sm:gap-10 mt-5">
       <button 
         type="button"
-        class="squishy-button bg-purple-500 focus:ring-4 focus:ring-purple-500/50 shadow-lg shadow-slate-800 px-14 sm:px-20 py-3"
+        class="squishy-button bg-purple-500 focus:ring-4 focus:ring-blue-500/50 shadow-lg shadow-slate-800 w-28 sm:w-44 py-3"
+        :class="{ 'opacity-60': queryLoading}"
+        :disabled="queryLoading"
+        @click="query"
       >
-        Query
+        <svg v-if="queryLoading" class="h-6 w-6 animate-spin" viewBox="3 3 18 18">
+          <path
+            class="fill-blue-800"
+            d="M12 5C8.13401 5 5 8.13401 5 12C5 15.866 8.13401 19 12 19C15.866 19 19 15.866 19 12C19 8.13401 15.866 5 12 5ZM3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12Z"></path>
+          <path
+            class="fill-blue-100"
+            d="M16.9497 7.05015C14.2161 4.31648 9.78392 4.31648 7.05025 7.05015C6.65973 7.44067 6.02656 7.44067 5.63604 7.05015C5.24551 6.65962 5.24551 6.02646 5.63604 5.63593C9.15076 2.12121 14.8492 2.12121 18.364 5.63593C18.7545 6.02646 18.7545 6.65962 18.364 7.05015C17.9734 7.44067 17.3403 7.44067 16.9497 7.05015Z"></path>
+        </svg>
+
+        <span v-else>Query</span>
       </button>
     </div>
 
     <div v-if="queryData != undefined" class="flex flex-col gap-4 items-center mt-10">
+      
       <span v-for="user in queryData" class="flex justify-center gap-4">
         <span v-for="(value, key) in user">
           {{ key }}: {{ value }}
         </span>
       </span>
+      
     </div>
 
   </main>
