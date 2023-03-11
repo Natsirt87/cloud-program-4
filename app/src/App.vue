@@ -51,7 +51,16 @@ async function query() {
   try {
     const response = await fetch("/api/query" + queryString);
     const body = (await response.json()).body;
-    queryData.value = body;
+
+    const queryResult = body.map((value) => {
+      let { etag, timestamp, partitionKey, rowKey, ...resultValue } = value;
+
+      resultValue = { name: `${value.partitionKey} ${value.rowKey}`, ...resultValue };
+
+      return resultValue;
+    });
+
+    queryData.value = queryResult;
   } catch {}
 
   queryLoading.value = false;
@@ -151,16 +160,23 @@ async function query() {
         <span v-else>Query</span>
       </button>
     </div>
+    <ul v-if="queryData != undefined" class="mt-10 text-center">
+      
+      
+      <li v-for="user in queryData" :key="user.name" class="mb-5">
+        
+        <hr class="mb-5 w-64 mx-auto opacity-25">
 
-    <div v-if="queryData != undefined" class="flex flex-col gap-4 items-center mt-10">
+        <li v-for="(value, key) in user">
+
+          <span v-if="key === 'name'" class="font-bold mx-1"> {{ value }}</span>
+
+          <span v-else> {{ key }} = {{ value }}</span>
+
+        </li>
+      </li>
       
-      <span v-for="user in queryData" class="flex justify-center gap-4">
-        <span v-for="(value, key) in user">
-          {{ key }}: {{ value }}
-        </span>
-      </span>
-      
-    </div>
+    </ul>
 
   </main>
 </template>
