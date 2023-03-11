@@ -9,6 +9,11 @@ const loadLoading = ref(false);
 const clearLoading = ref(false);
 const queryLoading = ref(false);
 
+const message = ref();
+const error = ref(false);
+
+let timeout = 0;
+
 async function load() {
   // Call the API method for load
   loadLoading.value = true;
@@ -16,7 +21,14 @@ async function load() {
   try {
     const response = await fetch("/api/load", { method: "PUT" });
     console.log(await response.json());
-  } catch {}
+    message.value = "Finished loading data."
+  } catch {
+    message.value = "Something went wrong loading data, please try again."
+    error.value = true;
+  }
+  
+  clearTimeout(timeout);
+  timeout = setTimeout(() => { message.value = ""; error.value = false; }, 4000);
 
   loadLoading.value = false;
 }
@@ -28,7 +40,17 @@ async function clear() {
   try {
     const response = await fetch("/api/clear", { method: "DELETE" });
     console.log(await response.json());
-  } catch {}
+    message.value = "Finished clearing data.";
+  } catch {
+    message.value = "Something went wrong while loading, please try again.";
+    error.value = true;
+  }
+
+  
+  clearTimeout(timeout);
+  timeout = setTimeout(() => { message.value = ""; error.value = false; }, 3000);
+
+  queryData.value = undefined;
 
   clearLoading.value = false;
 
@@ -61,7 +83,17 @@ async function query() {
     });
 
     queryData.value = queryResult;
-  } catch {}
+
+    if (queryResult.length == 0) {
+      message.value = "Nothing in the database was found with that name, sorry :(";
+    }
+  } catch {
+      message.value = "Something went wrong during querying, please try again.";
+      error.value = true;
+  }
+
+  clearTimeout(timeout);
+  timeout = setTimeout(() => { message.value = ""; error.value = false; }, 4000);
 
   queryLoading.value = false;
 }
@@ -69,18 +101,21 @@ async function query() {
 
 <template>
   <header class="flex justify-center">
-    <h1 class=" text-4xl mt-3">Dimpsey Time :(</h1>
+    <h1 class=" text-4xl my-7">Tristan Commons Cloud Program 4 (The Dimpster)</h1>
     
   </header>
 
-  <hr class="border-none h-[1px] bg-white bg-opacity-40 mx-4 my-4">
+  <hr class="border-none h-[1px] bg-white bg-opacity-40 mx-4 mb-4">
 
-  <main class="px-2">
+  <main class="px-2 mt-5">
+
+    <p class="text-center italic text-lg my-3" :class="{'text-red-400': error}">{{ message }} <br> </p>
+
     <!-- Row for load and clear buttons -->
-    <div class="flex justify-center gap-4 sm:gap-10 mt-10">
+    <div class="flex justify-center gap-4 sm:gap-10 mt-5">
       <button 
         type="button"
-        class="squishy-button bg-blue-500 focus:ring-4 focus:ring-blue-500/50 shadow-lg shadow-slate-800 w-28 sm:w-44 py-3"
+        class="squishy-button bg-blue-500 focus:ring-4 focus:ring-blue-500/50 shadow-lg shadow-slate-800 w-full sm:w-44 py-3"
         :class="{ 'opacity-60': loadLoading}"
         :disabled="loadLoading"
         @click="load"
@@ -99,7 +134,7 @@ async function query() {
 
       <button 
         type="button"
-        class="squishy-button bg-red-500 focus:ring-4 focus:ring-blue-500/50 shadow-lg shadow-slate-800 w-28 sm:w-44 py-3"
+        class="squishy-button bg-red-500 focus:ring-4 focus:ring-blue-500/50 shadow-lg shadow-slate-800 w-full sm:w-44 py-3"
         :class="{ 'opacity-60': clearLoading}"
         :disabled="clearLoading"
         @click="clear"
@@ -140,10 +175,10 @@ async function query() {
     </form>
 
 
-    <div class="flex justify-center gap-4 sm:gap-10 mt-5">
+    <div class="flex justify-center gap-4 sm:gap-10 mt-5 w-full">
       <button 
         type="button"
-        class="squishy-button bg-purple-500 focus:ring-4 focus:ring-blue-500/50 shadow-lg shadow-slate-800 w-28 sm:w-44 py-3"
+        class="squishy-button bg-purple-500 focus:ring-4 focus:ring-blue-500/50 shadow-lg shadow-slate-800 w-full sm:w-64 py-3"
         :class="{ 'opacity-60': queryLoading}"
         :disabled="queryLoading"
         @click="query"
@@ -160,12 +195,12 @@ async function query() {
         <span v-else>Query</span>
       </button>
     </div>
-    <ul v-if="queryData != undefined" class="mt-10 text-center">
+    <ul v-if="queryData != undefined" class="mt-10 text-center grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
       
       
       <li v-for="user in queryData" :key="user.name" class="mb-5">
         
-        <hr class="mb-5 w-64 mx-auto opacity-25">
+        <hr class="mb-5 w-60 mx-auto opacity-25">
 
         <li v-for="(value, key) in user">
 
