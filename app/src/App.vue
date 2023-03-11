@@ -101,7 +101,7 @@ async function query() {
 
 <template>
   <header class="flex justify-center">
-    <h1 class=" text-4xl my-7">Tristan Commons Cloud Program 4 (The Dimpster)</h1>
+    <h1 class=" text-4xl my-7">Tristan Commons Cloud Program 4 (<span class="italic">a.k.a. "Dimptacular"</span>)</h1>
     
   </header>
 
@@ -201,13 +201,11 @@ async function query() {
       <li v-for="user in queryData" :key="user.name" class="mb-5">
         
         <hr class="mb-5 w-60 mx-auto opacity-25">
-
         <li v-for="(value, key) in user">
 
           <span v-if="key === 'name'" class="font-bold mx-1"> {{ value }}</span>
-
           <span v-else> {{ key }} = {{ value }}</span>
-
+          
         </li>
       </li>
       
